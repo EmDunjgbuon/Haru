@@ -30,6 +30,9 @@ jobs:
           ./gradlew setupCiWorkspace --no-daemon
           ./gradlew clean --no-daemon
           ./gradlew build --no-daemon --refresh-dependencies
+          ./gradlew build --stacktrace
+          ./gradlew build --info
+          ./gradlew build --debug
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
