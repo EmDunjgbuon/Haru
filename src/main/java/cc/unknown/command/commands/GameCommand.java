@@ -8,7 +8,7 @@ import cc.unknown.Haru;
 import cc.unknown.command.Command;
 import cc.unknown.event.impl.EventLink;
 import cc.unknown.event.impl.netty.PacketEvent;
-import cc.unknown.event.impl.player.TickEvent;
+import cc.unknown.event.impl.other.player.TickEvent;
 import cc.unknown.utils.network.PacketUtil;
 import cc.unknown.utils.player.PlayerUtil;
 import net.minecraft.client.entity.EntityPlayerSP;

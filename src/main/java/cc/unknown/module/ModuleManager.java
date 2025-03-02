@@ -29,6 +29,7 @@ public class ModuleManager implements Loona {
 				// combat
 				new AutoClick(),
 				new AimAssist(),
+				new KillAura(),
 				new AutoBlock(),
 				new AutoRefill(),
 				new JumpReset(),

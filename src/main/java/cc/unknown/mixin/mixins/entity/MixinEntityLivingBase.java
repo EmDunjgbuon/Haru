@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import cc.unknown.Haru;
-import cc.unknown.event.impl.player.JumpEvent;
+import cc.unknown.event.impl.other.player.JumpEvent;
 import cc.unknown.module.impl.visuals.Fullbright;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;

@@ -1,4 +1,4 @@
-package cc.unknown.event.impl.player;
+package cc.unknown.event.impl.other.player;
 
 import cc.unknown.event.Event;
 

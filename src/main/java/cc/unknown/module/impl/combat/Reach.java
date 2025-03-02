@@ -11,6 +11,7 @@ import cc.unknown.event.impl.other.MouseEvent;
 import cc.unknown.module.impl.Module;
 import cc.unknown.module.impl.api.Category;
 import cc.unknown.module.impl.api.ModuleInfo;
+import cc.unknown.module.impl.combat.KillAura;
 import cc.unknown.module.setting.impl.BooleanValue;
 import cc.unknown.module.setting.impl.DoubleSliderValue;
 import cc.unknown.module.setting.impl.SliderValue;
@@ -29,131 +30,138 @@ import net.minecraft.util.Vec3;
 
 @ModuleInfo(name = "Reach", category = Category.Combat)
 public class Reach extends Module {
-	private DoubleSliderValue rangeCombat = new DoubleSliderValue("Range", 3, 3, 2.9, 6, 0.01);
-	private SliderValue chance = new SliderValue("Chance", 100, 0, 100, 1);
-	private BooleanValue weapon_only = new BooleanValue("Only Weapon", false);
-	private BooleanValue moving_only = new BooleanValue("Only Move", false);
-	private BooleanValue sprint_only = new BooleanValue("Only Sprint", false);
-	private BooleanValue speed_only = new BooleanValue("Only Speed Potion", false);
-	private BooleanValue hit_through_blocks = new BooleanValue("Hit through blocks", false);
+    private DoubleSliderValue rangeCombat = new DoubleSliderValue("Range", 3, 3, 2.9, 6, 0.01);
+    private SliderValue chance = new SliderValue("Chance", 100, 0, 100, 1);
+    private BooleanValue weapon_only = new BooleanValue("Only Weapon", false);
+    private BooleanValue moving_only = new BooleanValue("Only Move", false);
+    private BooleanValue sprint_only = new BooleanValue("Only Sprint", false);
+    private BooleanValue speed_only = new BooleanValue("Only Speed Potion", false);
+    private BooleanValue hit_through_blocks = new BooleanValue("Hit through blocks", false);
+    
+    private KillAura killAura;
 
-	public Reach() {
-		this.registerSetting(rangeCombat, chance, weapon_only, moving_only, sprint_only, speed_only, hit_through_blocks);
-	}
-	
-	@EventLink
-	public void onGui(ClickGuiEvent e) {
-		this.setSuffix("- [" + rangeCombat.getInputMin() + ", " + rangeCombat.getInputMax() + "]");
-	}
-		
-	@EventLink
-	public void onMouse(MouseEvent e) {
-		AutoClick clicker = (AutoClick) Haru.instance.getModuleManager().getModule(AutoClick.class);
-		if (PlayerUtil.inGame() && e.getButton() == 0 && (!clicker.isEnabled() || !Mouse.isButtonDown(0)) || ClickUtil.isClicking()) {
-			callReach();
-		}
-	}
+    public Reach() {
+        this.registerSetting(rangeCombat, chance, weapon_only, moving_only, sprint_only, speed_only, hit_through_blocks);
+    }
+    
+    @Override
+    public void onEnable() {
+        killAura = (KillAura) Haru.instance.getModuleManager().getModule(KillAura.class);
+    }
 
-	private boolean callReach() {
-		if (!PlayerUtil.inGame()) {
-			return false;
-		} else if (moving_only.isToggled() && (double) mc.thePlayer.moveForward == 0.0D
-				&& (double) mc.thePlayer.moveStrafing == 0.0D) {
-			return false;
-		} else if (weapon_only.isToggled() && !PlayerUtil.isHoldingWeapon()) {
-			return false;
-		} else if (sprint_only.isToggled() && !mc.thePlayer.isSprinting()) {
-			return false;
-		} else if (speed_only.isToggled() && !mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
-			return false;
-		} else if (!(chance.getInput() == 100 || Math.random() <= chance.getInput() / 100)) {
-			return false;
-		} else {
-			if (!hit_through_blocks.isToggled() && mc.objectMouseOver != null) {
-				BlockPos p = mc.objectMouseOver.getBlockPos();
-				if (p != null && mc.theWorld.getBlockState(p).getBlock() != Blocks.air) {
-					return false;
-				}
-			}
+    @EventLink
+    public void onGui(ClickGuiEvent e) {
+        this.setSuffix("- [" + rangeCombat.getInputMin() + ", " + rangeCombat.getInputMax() + "]");
+    }
+        
+    @EventLink
+    public void onMouse(MouseEvent e) {
+        AutoClick clicker = (AutoClick) Haru.instance.getModuleManager().getModule(AutoClick.class);
+        if (PlayerUtil.inGame() && e.getButton() == 0 && (!clicker.isEnabled() || !Mouse.isButtonDown(0)) || ClickUtil.isClicking()) {
+            callReach();
+        }
+    }
 
-			double reach = ClickUtil.ranModuleVal(rangeCombat, MathUtil.getRand());
-			Object[] object = findEntitiesWithinReach(reach);
-			if (object == null) {
-				return false;
-			} else {
-				Entity en = (Entity) object[0];
-				mc.objectMouseOver = new MovingObjectPosition(en, (Vec3) object[1]);
-				mc.pointedEntity = en;
-				return true;
-			}
-		}
-	}
+    private boolean callReach() {
+        if (!PlayerUtil.inGame()) {
+            return false;
+        } else if (moving_only.isToggled() && mc.thePlayer.moveForward == 0.0D
+                && mc.thePlayer.moveStrafing == 0.0D) {
+            return false;
+        } else if (weapon_only.isToggled() && !PlayerUtil.isHoldingWeapon()) {
+            return false;
+        } else if (sprint_only.isToggled() && !mc.thePlayer.isSprinting()) {
+            return false;
+        } else if (speed_only.isToggled() && !mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
+            return false;
+        } else if (!(chance.getInput() == 100 || Math.random() <= chance.getInput() / 100)) {
+            return false;
+        } else {
+            if (!hit_through_blocks.isToggled() && mc.objectMouseOver != null) {
+                BlockPos p = mc.objectMouseOver.getBlockPos();
+                if (p != null && mc.theWorld.getBlockState(p).getBlock() != Blocks.air) {
+                    return false;
+                }
+            }
 
-	private Object[] findEntitiesWithinReach(double reach) {
-		Reach reich = (Reach) Haru.instance.getModuleManager().getModule(Reach.class);
+            double reach = (killAura != null && killAura.isEnabled()) ? killAura.getRange() 
+                        : ClickUtil.ranModuleVal(rangeCombat, MathUtil.getRand());
 
-		if (!reich.isEnabled()) {
-			reach = mc.playerController.extendedReach() ? 6.0D : 3.0D;
-		}
+            Object[] object = findEntitiesWithinReach(reach);
+            if (object == null) {
+                return false;
+            } else {
+                Entity en = (Entity) object[0];
+                mc.objectMouseOver = new MovingObjectPosition(en, (Vec3) object[1]);
+                mc.pointedEntity = en;
+                return true;
+            }
+        }
+    }
 
-		Entity renderView = mc.getRenderViewEntity();
-		Entity target = null;
-		if (renderView == null) {
-			return null;
-		} else {
-			mc.mcProfiler.startSection("pick");
-			Vec3 eyePosition = renderView.getPositionEyes(1.0F);
-			Vec3 playerLook = renderView.getLook(1.0F);
-			Vec3 reachTarget = eyePosition.addVector(playerLook.xCoord * reach, playerLook.yCoord * reach,
-					playerLook.zCoord * reach);
-			Vec3 targetHitVec = null;
-			List<Entity> targetsWithinReach = mc.theWorld.getEntitiesWithinAABBExcludingEntity(renderView,
-					renderView.getEntityBoundingBox()
-							.addCoord(playerLook.xCoord * reach, playerLook.yCoord * reach, playerLook.zCoord * reach)
-							.expand(1.0D, 1.0D, 1.0D));
-			double adjustedReach = reach;
+    private Object[] findEntitiesWithinReach(double reach) {
+        Reach reachModule = (Reach) Haru.instance.getModuleManager().getModule(Reach.class);
 
-			for (Entity entity : targetsWithinReach) {
-				if (entity.canBeCollidedWith()) {
-					float ex = (float) ((double) entity.getCollisionBorderSize());
-					AxisAlignedBB entityBoundingBox = entity.getEntityBoundingBox().expand(ex, ex, ex);
-					MovingObjectPosition targetPosition = entityBoundingBox.calculateIntercept(eyePosition,
-							reachTarget);
-					if (entityBoundingBox.isVecInside(eyePosition)) {
-						if (0.0D < adjustedReach || adjustedReach == 0.0D) {
-							target = entity;
-							targetHitVec = targetPosition == null ? eyePosition : targetPosition.hitVec;
-							adjustedReach = 0.0D;
-						}
-					} else if (targetPosition != null) {
-						double distanceToVec = eyePosition.distanceTo(targetPosition.hitVec);
-						if (distanceToVec < adjustedReach || adjustedReach == 0.0D) {
-							if (entity == renderView.ridingEntity) {
-								if (adjustedReach == 0.0D) {
-									target = entity;
-									targetHitVec = targetPosition.hitVec;
-								}
-							} else {
-								target = entity;
-								targetHitVec = targetPosition.hitVec;
-								adjustedReach = distanceToVec;
-							}
-						}
-					}
-				}
-			}
+        if (!reachModule.isEnabled()) {
+            reach = mc.playerController.extendedReach() ? 6.0D : 3.0D;
+        }
 
-			if (adjustedReach < reach && !(target instanceof EntityLivingBase)
-					&& !(target instanceof EntityItemFrame)) {
-				target = null;
-			}
+        Entity renderView = mc.getRenderViewEntity();
+        Entity target = null;
+        if (renderView == null) {
+            return null;
+        } else {
+            mc.mcProfiler.startSection("pick");
+            Vec3 eyePosition = renderView.getPositionEyes(1.0F);
+            Vec3 playerLook = renderView.getLook(1.0F);
+            Vec3 reachTarget = eyePosition.addVector(playerLook.xCoord * reach, playerLook.yCoord * reach,
+                    playerLook.zCoord * reach);
+            Vec3 targetHitVec = null;
+            List<Entity> targetsWithinReach = mc.theWorld.getEntitiesWithinAABBExcludingEntity(renderView,
+                    renderView.getEntityBoundingBox()
+                            .addCoord(playerLook.xCoord * reach, playerLook.yCoord * reach, playerLook.zCoord * reach)
+                            .expand(1.0D, 1.0D, 1.0D));
+            double adjustedReach = reach;
 
-			mc.mcProfiler.endSection();
-			if (target != null && targetHitVec != null) {
-				return new Object[] { target, targetHitVec };
-			} else {
-				return null;
-			}
-		}
-	}
+            for (Entity entity : targetsWithinReach) {
+                if (entity.canBeCollidedWith()) {
+                    float ex = entity.getCollisionBorderSize();
+                    AxisAlignedBB entityBoundingBox = entity.getEntityBoundingBox().expand(ex, ex, ex);
+                    MovingObjectPosition targetPosition = entityBoundingBox.calculateIntercept(eyePosition, reachTarget);
+                    if (entityBoundingBox.isVecInside(eyePosition)) {
+                        if (0.0D < adjustedReach || adjustedReach == 0.0D) {
+                            target = entity;
+                            targetHitVec = targetPosition == null ? eyePosition : targetPosition.hitVec;
+                            adjustedReach = 0.0D;
+                        }
+                    } else if (targetPosition != null) {
+                        double distanceToVec = eyePosition.distanceTo(targetPosition.hitVec);
+                        if (distanceToVec < adjustedReach || adjustedReach == 0.0D) {
+                            if (entity == renderView.ridingEntity) {
+                                if (adjustedReach == 0.0D) {
+                                    target = entity;
+                                    targetHitVec = targetPosition.hitVec;
+                                }
+                            } else {
+                                target = entity;
+                                targetHitVec = targetPosition.hitVec;
+                                adjustedReach = distanceToVec;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (adjustedReach < reach && !(target instanceof EntityLivingBase) && !(target instanceof EntityItemFrame)) {
+                target = null;
+            }
+
+            mc.mcProfiler.endSection();
+            if (target != null && targetHitVec != null) {
+                return new Object[] { target, targetHitVec };
+            } else {
+                return null;
+            }
+        }
+    }
 }

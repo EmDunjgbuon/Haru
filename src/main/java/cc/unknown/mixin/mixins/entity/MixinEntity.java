@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import cc.unknown.Haru;
 import cc.unknown.event.impl.move.MoveEvent;
-import cc.unknown.event.impl.player.StrafeEvent;
+import cc.unknown.event.impl.other.player.StrafeEvent;
 import cc.unknown.utils.Loona;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;

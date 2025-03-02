@@ -4,7 +4,7 @@ import org.lwjgl.input.Keyboard;
 
 import cc.unknown.Haru;
 import cc.unknown.event.impl.EventLink;
-import cc.unknown.event.impl.player.TickEvent;
+import cc.unknown.event.impl.other.player.TickEvent;
 import cc.unknown.module.impl.Module;
 import cc.unknown.module.impl.api.Category;
 import cc.unknown.module.impl.api.ModuleInfo;
@@ -18,7 +18,6 @@ import net.minecraft.client.settings.KeyBinding;
 @ModuleInfo(name = "ClickGui", category = Category.Visuals, key = Keyboard.KEY_RSHIFT)
 public class ClickGui extends Module {
 	
-	//public ModeValue waifuMode = new ModeValue("Waifu", "Megumin", "Megumin", "Kurumi");
     public ModeValue clientTheme = new ModeValue("Color", "Static", "Rainbow", "Pastel", "Memories", "Lilith", "Static", "Cantina");
     public ModeValue backGroundMode = new ModeValue("BackGround", "None", "Gradient", "Normal", "None");
 	public SliderValue clickGuiColor = new SliderValue("ClickGui Color [H/S/B]", 0, 0, 350, 10);

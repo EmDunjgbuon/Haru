@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import cc.unknown.Haru;
 import cc.unknown.event.impl.other.GameEvent;
 import cc.unknown.event.impl.other.MouseEvent;
-import cc.unknown.event.impl.player.TickEvent;
+import cc.unknown.event.impl.other.player.TickEvent;
 import cc.unknown.event.impl.world.ChangeWorldEvent;
 import cc.unknown.mixin.interfaces.IMinecraft;
 import cc.unknown.utils.client.Cold;

@@ -2,7 +2,7 @@ package cc.unknown.module.impl.player;
 
 import cc.unknown.event.impl.EventLink;
 import cc.unknown.event.impl.other.ClickGuiEvent;
-import cc.unknown.event.impl.player.TickEvent;
+import cc.unknown.event.impl.other.player.TickEvent;
 import cc.unknown.module.impl.Module;
 import cc.unknown.module.impl.api.Category;
 import cc.unknown.module.impl.api.ModuleInfo;

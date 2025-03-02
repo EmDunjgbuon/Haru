@@ -1,4 +1,4 @@
-package cc.unknown.event.impl.player;
+package cc.unknown.event.impl.other.player;
 
 import cc.unknown.event.Event;
 import lombok.AllArgsConstructor;
@@ -8,6 +8,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class StrafeEvent extends Event {
-    private float strafe, forward, friction, yaw;
+public class JumpEvent extends Event {
+    private float yaw;
 }

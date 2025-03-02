@@ -12,7 +12,7 @@ import cc.unknown.event.impl.EventLink;
 import cc.unknown.event.impl.api.EventBus;
 import cc.unknown.event.impl.other.ClickGuiEvent;
 import cc.unknown.event.impl.other.GameEvent;
-import cc.unknown.event.impl.player.TickEvent;
+import cc.unknown.event.impl.other.player.TickEvent;
 import cc.unknown.module.ModuleManager;
 import cc.unknown.ui.clickgui.raven.ClickGUI;
 import cc.unknown.utils.Loona;
